@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/caarlos0/am-i-working/watcher"
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 var version = "dev"

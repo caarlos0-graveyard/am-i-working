@@ -2,7 +2,6 @@ package watcher
 
 import (
 	"bufio"
-	"errors"
 	"log"
 	"os"
 	"regexp"
@@ -10,10 +9,9 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
+const resolvconf = "/etc/resolv.conf"
+
 func Watch(domain string) error {
-	if domain == "" {
-		return errors.New("Invalid domain")
-	}
 	log.Println("Watching for domain", domain)
 	return watch(domain)
 }
@@ -25,11 +23,12 @@ func watch(domain string) error {
 	}
 	defer watcher.Close()
 
-	if err := watcher.Add("/etc/resolv.conf"); err != nil {
+	if err := watcher.Add(resolvconf); err != nil {
 		return err
 	}
 
 	regex := regexp.MustCompile("domain .*(" + domain + ").*")
+	logDomain(regex)
 	return loop(domain, regex, watcher)
 }
 
@@ -42,7 +41,7 @@ func loop(
 		select {
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				if err := logDomain(event, regex); err != nil {
+				if err := logDomain(regex); err != nil {
 					return err
 				}
 			}
@@ -52,17 +51,23 @@ func loop(
 	}
 }
 
-func logDomain(event fsnotify.Event, regex *regexp.Regexp) error {
-	file, err := os.Open(event.Name)
+func logDomain(regex *regexp.Regexp) error {
+	file, err := os.Open(resolvconf)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
+	var match string
 	for scanner.Scan() {
 		if matches := regex.FindStringSubmatch(scanner.Text()); len(matches) > 0 {
-			log.Println("Into domain", matches[1])
+			match = matches[1]
 		}
+	}
+	if match == "" {
+		log.Println("Not working")
+	} else {
+		log.Println("Working in domain", match)
 	}
 	return nil
 }
