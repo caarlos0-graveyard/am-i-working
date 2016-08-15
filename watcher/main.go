@@ -9,39 +9,29 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
-const resolvconf = "/etc/resolv.conf"
-
-func Watch(domain string) error {
+func Watch(file, domain string) error {
 	log.Println("Watching for domain", domain)
-	return watch(domain)
-}
-
-func watch(domain string) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
 	}
 	defer watcher.Close()
 
-	if err := watcher.Add(resolvconf); err != nil {
+	if err := watcher.Add(file); err != nil {
 		return err
 	}
 
 	regex := regexp.MustCompile("domain .*(" + domain + ").*")
-	logDomain(regex)
+	logDomain(file, regex)
 	return loop(domain, regex, watcher)
 }
 
-func loop(
-	domain string,
-	regex *regexp.Regexp,
-	watcher *fsnotify.Watcher,
-) error {
+func loop(domain string, regex *regexp.Regexp, watcher *fsnotify.Watcher) error {
 	for {
 		select {
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				if err := logDomain(regex); err != nil {
+				if err := logDomain(event.Name, regex); err != nil {
 					return err
 				}
 			}
@@ -51,8 +41,8 @@ func loop(
 	}
 }
 
-func logDomain(regex *regexp.Regexp) error {
-	file, err := os.Open(resolvconf)
+func logDomain(name string, regex *regexp.Regexp) error {
+	file, err := os.Open(name)
 	if err != nil {
 		return err
 	}
@@ -62,6 +52,7 @@ func logDomain(regex *regexp.Regexp) error {
 	for scanner.Scan() {
 		if matches := regex.FindStringSubmatch(scanner.Text()); len(matches) > 0 {
 			match = matches[1]
+			break
 		}
 	}
 	if match == "" {

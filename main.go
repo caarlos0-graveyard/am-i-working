@@ -9,6 +9,8 @@ import (
 
 var version = "dev"
 
+const resolv = "/etc/resolv.conf"
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "am-i-working"
@@ -23,7 +25,7 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
-		if err := watcher.Watch(c.String("domain")); err != nil {
+		if err := watcher.Watch(resolv, c.String("domain")); err != nil {
 			return cli.NewExitError(err.Error(), 1)
 		}
 		return nil
