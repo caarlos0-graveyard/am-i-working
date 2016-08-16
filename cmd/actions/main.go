@@ -1,4 +1,4 @@
-package main
+package actions
 
 import (
 	"log"
@@ -7,13 +7,15 @@ import (
 	"github.com/urfave/cli"
 )
 
-func mainAction(c *cli.Context) error {
+// Main action of the app
+func Main(c *cli.Context) error {
 	events := make(chan bool)
 	domain := c.String("domain")
-	log.Println("Watching for domain", domain)
+	resolv := c.String("file")
+	log.Println("Watching", resolv, "for domain", domain)
 	go func() {
 		if err := working.Watch(resolv, domain, events); err != nil {
-			log.Fatalln(err)
+			log.Fatal(err)
 		}
 	}()
 	for {
@@ -23,5 +25,4 @@ func mainAction(c *cli.Context) error {
 			log.Println("Not working")
 		}
 	}
-	return nil
 }
