@@ -22,4 +22,4 @@ test:
     - ln -sf "$(pwd)" "$IMPORT_PATH/am-i-working"
     - cd "$APP_PATH" &&  glide install
   override:
-    - cd "$APP_PATH" && gotestcover -race -coverprofile=coverage.out $(glide novendor)
+    - cd "$APP_PATH" && gotestcover -v -timeout 10s -race -coverprofile=coverage.out $(glide novendor)
