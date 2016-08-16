@@ -1,0 +1,25 @@
+machine:
+  environment:
+    IMPORT_PATH: "/home/ubuntu/.go_workspace/src/github.com/caarlos0"
+    APP_PATH: "$IMPORT_PATH/am-i-working"
+deployment:
+  release:
+    tag: /v[0-9]+(\.[0-9]+)*/
+    commands:
+      - curl -o /tmp/release https://raw.githubusercontent.com/caarlos0/go-releaser/master/release
+      - chmod +x /tmp/release
+      - cd "$APP_PATH" && /tmp/release --user caarlos0 --repo am-i-working --binary am-i-working --main cmd/main.go
+dependencies:
+  override:
+    - sudo add-apt-repository ppa:masterminds/glide -y
+    - sudo apt-get update
+    - sudo apt-get install glide -y
+    - go get github.com/pierrre/gotestcover
+    - go get golang.org/x/tools/cmd/cover
+test:
+  pre:
+    - mkdir -p "$IMPORT_PATH"
+    - ln -sf "$(pwd)" "$IMPORT_PATH/am-i-working"
+    - cd "$APP_PATH" &&  glide install
+  override:
+    - cd "$APP_PATH" && gotestcover -race -coverprofile=coverage.out $(glide novendor)

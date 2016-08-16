@@ -13,7 +13,7 @@ var version = "dev"
 func main() {
 	app := cli.NewApp()
 	app.Name = "am-i-working"
-	app.Usage = "Logs when you're working based a given domain in /etc/resolv.conf"
+	app.Usage = "Logs your working activity based on /etc/resolv.conf domain"
 	app.Version = version
 	app.Author = "Carlos Alexandro Becker <@caarlos0>"
 	app.Copyright = "MIT"
