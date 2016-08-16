@@ -2,15 +2,13 @@ package watcher
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"regexp"
 
 	"gopkg.in/fsnotify.v1"
 )
 
-func Watch(file, domain string) error {
-	log.Println("Watching for domain", domain)
+func Watch(file, domain string, events chan bool) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
@@ -22,43 +20,40 @@ func Watch(file, domain string) error {
 	}
 
 	regex := regexp.MustCompile("domain .*(" + domain + ").*")
-	logDomain(file, regex)
-	return loop(domain, regex, watcher)
+	result, err := check(file, regex)
+	if err != nil {
+		return err
+	}
+	events <- result
+	return loop(domain, regex, watcher, events)
 }
 
-func loop(domain string, regex *regexp.Regexp, watcher *fsnotify.Watcher) error {
+func loop(domain string, regex *regexp.Regexp, watcher *fsnotify.Watcher, events chan bool) error {
 	for {
 		select {
 		case event := <-watcher.Events:
 			if event.Op&fsnotify.Write == fsnotify.Write {
-				if err := logDomain(event.Name, regex); err != nil {
+				result, err := check(event.Name, regex)
+				if err != nil {
 					return err
 				}
+				events <- result
 			}
-		case err := <-watcher.Errors:
-			log.Println(err)
 		}
 	}
 }
 
-func logDomain(name string, regex *regexp.Regexp) error {
-	file, err := os.Open(name)
+func check(filename string, regex *regexp.Regexp) (bool, error) {
+	file, err := os.Open(filename)
 	if err != nil {
-		return err
+		return false, err
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
-	var match string
 	for scanner.Scan() {
 		if matches := regex.FindStringSubmatch(scanner.Text()); len(matches) > 0 {
-			match = matches[1]
-			break
+			return true, nil
 		}
 	}
-	if match == "" {
-		log.Println("Not working")
-	} else {
-		log.Println("Working in domain", match)
-	}
-	return nil
+	return false, nil
 }

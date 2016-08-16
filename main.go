@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/caarlos0/am-i-working/watcher"
@@ -25,8 +26,20 @@ func main() {
 		},
 	}
 	app.Action = func(c *cli.Context) error {
-		if err := watcher.Watch(resolv, c.String("domain")); err != nil {
-			return cli.NewExitError(err.Error(), 1)
+		events := make(chan bool)
+		domain := c.String("domain")
+		log.Println("Watching for domain", domain)
+		go func() {
+			if err := watcher.Watch(resolv, domain, events); err != nil {
+				log.Fatalln(err)
+			}
+		}()
+		for {
+			if <-events {
+				log.Println("Working")
+			} else {
+				log.Println("Not working")
+			}
 		}
 		return nil
 	}
