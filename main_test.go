@@ -12,25 +12,32 @@ import (
 func TestWatchForDomain(t *testing.T) {
 	// warm-up
 	assert := assert.New(t)
-	file, err := ioutil.TempFile(os.TempDir(), "fake_resolv.conf")
+	f, err := ioutil.TempFile(os.TempDir(), "fake_resolv.conf")
+	file := f.Name()
 	assert.NoError(err)
-	defer os.Remove(file.Name())
+	defer os.Remove(file)
 	events := make(chan bool)
 
 	// watch the file
-	go working.Watch(file.Name(), "mydomain", events)
+	go working.Watch(file, "mydomain", events)
 
 	// showtime
 	assert.False(<-events, "the file is empty")
 
-	assert.NoError(ioutil.WriteFile(file.Name(), []byte("domain whatever"), 0644))
+	assert.NoError(ioutil.WriteFile(file, []byte("domain whatever"), 0644))
 	assert.False(<-events, "domain doesnt match")
 
-	assert.NoError(ioutil.WriteFile(file.Name(), []byte("domain mydomain"), 0644))
+	assert.NoError(ioutil.WriteFile(file, []byte("domain mydomain"), 0644))
 	assert.True(<-events, "domain match")
 
-	assert.NoError(ioutil.WriteFile(file.Name(), []byte("domain nope"), 0644))
+	assert.NoError(ioutil.WriteFile(file, []byte("domain nope"), 0644))
 	assert.False(<-events, "domain doesnt match")
+
+	os.Remove(file)
+	assert.False(<-events, "file was removed")
+
+	assert.NoError(ioutil.WriteFile(file, []byte("domain mydomain"), 0644))
+	assert.True(<-events, "domain match")
 }
 
 func TestNonExistentFile(t *testing.T) {

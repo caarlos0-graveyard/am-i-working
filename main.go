@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"regexp"
+	"time"
 
 	"gopkg.in/fsnotify.v1"
 )
@@ -28,7 +29,12 @@ func Watch(file, domain string, events chan bool) error {
 	return loop(domain, regex, watcher, events)
 }
 
-func loop(domain string, regex *regexp.Regexp, watcher *fsnotify.Watcher, events chan bool) error {
+func loop(
+	domain string,
+	regex *regexp.Regexp,
+	watcher *fsnotify.Watcher,
+	events chan bool,
+) error {
 	for {
 		select {
 		case event := <-watcher.Events:
@@ -38,6 +44,14 @@ func loop(domain string, regex *regexp.Regexp, watcher *fsnotify.Watcher, events
 					return err
 				}
 				events <- result
+			} else if event.Op&fsnotify.Remove == fsnotify.Remove {
+				events <- false
+				for {
+					time.Sleep(10 * time.Second)
+					if _, err := os.Stat(event.Name); err == nil {
+						return Watch(event.Name, domain, events)
+					}
+				}
 			}
 		}
 	}
