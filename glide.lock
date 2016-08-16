@@ -1,5 +1,5 @@
-hash: 35f415750332beed22c96ef750829be26842142665059074889fd4f7b39e9b00
-updated: 2016-08-15T20:31:58.320219527-03:00
+hash: 4dbfbbcafc9f535a2288d2bccf00735abf499c173b46fe3e6c868b494f156371
+updated: 2016-08-15T21:20:04.541190762-03:00
 imports:
 - name: github.com/urfave/cli
   version: 1efa31f08b9333f1bd4882d61f9d668a70cd902e
@@ -9,4 +9,6 @@ imports:
   - unix
 - name: gopkg.in/fsnotify.v1
   version: a8a77c9133d2d6fd8334f3260d06f60e8d80a5fb
-testImports: []
+testImports:
+- name: github.com/stretchr/testify
+  version: f390dcf405f7b83c997eac1b06768bb9f44dec18
