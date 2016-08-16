@@ -1,11 +1,11 @@
-package watcher_test
+package am_i_working_test
 
 import (
 	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/caarlos0/am-i-working/watcher"
+	working "github.com/caarlos0/am-i-working"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ func TestWatchForDomain(t *testing.T) {
 	events := make(chan bool)
 
 	// watch the file
-	go watcher.Watch(file.Name(), "mydomain", events)
+	go working.Watch(file.Name(), "mydomain", events)
 
 	// showtime
 	assert.False(<-events, "the file is empty")
@@ -36,5 +36,5 @@ func TestWatchForDomain(t *testing.T) {
 func TestNonExistentFile(t *testing.T) {
 	assert := assert.New(t)
 	file := "/tmp/wtf-this-shouldn-exist"
-	assert.Error(watcher.Watch(file, "mydomain", make(chan bool)))
+	assert.Error(working.Watch(file, "mydomain", make(chan bool)))
 }

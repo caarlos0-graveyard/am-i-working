@@ -1,47 +1,59 @@
-package main
+package am_i_working
 
 import (
-	"log"
+	"bufio"
 	"os"
+	"regexp"
 
-	"github.com/caarlos0/am-i-working/watcher"
-	"github.com/urfave/cli"
+	"gopkg.in/fsnotify.v1"
 )
 
-var version = "dev"
-
-const resolv = "/etc/resolv.conf"
-
-func main() {
-	app := cli.NewApp()
-	app.Name = "am-i-working"
-	app.Usage = "Logs when you're working based on /etc/resolv.conf domain"
-	app.Version = version
-	app.Author = "Carlos Alexandro Becker <@caarlos0>"
-	app.Copyright = "MIT"
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "domain, d",
-			Usage: "Domain name that appears in domain section of /etc/resolv.conf when you're connected to work networks",
-		},
+func Watch(file, domain string, events chan bool) error {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
 	}
-	app.Action = func(c *cli.Context) error {
-		events := make(chan bool)
-		domain := c.String("domain")
-		log.Println("Watching for domain", domain)
-		go func() {
-			if err := watcher.Watch(resolv, domain, events); err != nil {
-				log.Fatalln(err)
-			}
-		}()
-		for {
-			if <-events {
-				log.Println("Working")
-			} else {
-				log.Println("Not working")
+	defer watcher.Close()
+
+	if err := watcher.Add(file); err != nil {
+		return err
+	}
+
+	regex := regexp.MustCompile("domain .*(" + domain + ").*")
+	result, err := check(file, regex)
+	if err != nil {
+		return err
+	}
+	events <- result
+	return loop(domain, regex, watcher, events)
+}
+
+func loop(domain string, regex *regexp.Regexp, watcher *fsnotify.Watcher, events chan bool) error {
+	for {
+		select {
+		case event := <-watcher.Events:
+			if event.Op&fsnotify.Write == fsnotify.Write {
+				result, err := check(event.Name, regex)
+				if err != nil {
+					return err
+				}
+				events <- result
 			}
 		}
-		return nil
 	}
-	app.Run(os.Args)
+}
+
+func check(filename string, regex *regexp.Regexp) (bool, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		if matches := regex.FindStringSubmatch(scanner.Text()); len(matches) > 0 {
+			return true, nil
+		}
+	}
+	return false, nil
 }
