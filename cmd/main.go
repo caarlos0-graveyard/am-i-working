@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/caarlos0/am-i-working/cmd/actions"
+	"github.com/caarlos0/am-i-working/cmd/commands"
 	"github.com/urfave/cli"
 )
 
@@ -17,17 +17,14 @@ func main() {
 	app.Version = version
 	app.Author = "Carlos Alexandro Becker <@caarlos0>"
 	app.Copyright = "MIT"
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "domain, d",
-			Usage: "Domain name that appears in domain section of /etc/resolv.conf when you're connected to company networks",
-		},
-		cli.StringFlag{
-			Name:  "file, f",
-			Usage: "File to watch for domain regexes",
-			Value: "/etc/resolv.conf",
-		},
+	app.Commands = []cli.Command{
+		commands.Watch,
+		commands.CreateService,
+		commands.RestartService,
+		commands.StartService,
+		commands.StopService,
 	}
-	app.Action = actions.Main
-	log.Fatal(app.Run(os.Args))
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
