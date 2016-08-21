@@ -1,6 +1,8 @@
-hash: 4dbfbbcafc9f535a2288d2bccf00735abf499c173b46fe3e6c868b494f156371
-updated: 2016-08-15T21:20:04.541190762-03:00
+hash: a15f6afafb62a2c53154474ad67f5edd4c25151c0517ca291dcb1cb2b9437422
+updated: 2016-08-16T08:52:03.178414362-03:00
 imports:
+- name: github.com/kardianos/osext
+  version: c2c54e542fb797ad986b31721e1baedf214ca413
 - name: github.com/urfave/cli
   version: 1efa31f08b9333f1bd4882d61f9d668a70cd902e
 - name: golang.org/x/sys
