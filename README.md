@@ -11,6 +11,13 @@ hours later (and automate the sending of the report too).
 To run it, you can simply `./am-i-working watch --domain mycompany > work.log`,
 or create a service in the OS level to keep it running forever.
 
+## Install
+
+```console
+brew tap caarlos0/formulae
+brew install twatcher
+```
+
 ### macOS Service
 
 To set it up as a macOS service, just tun:
