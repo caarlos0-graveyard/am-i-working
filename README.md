@@ -1,4 +1,4 @@
-# am-i-working [![Build Status](https://travis-ci.org/caarlos0/am-i-working.svg?branch=master)](https://travis-ci.org/caarlos0/am-i-working)
+# am-i-working [![Build Status](https://travis-ci.org/caarlos0/am-i-working.svg?branch=master)](https://travis-ci.org/caarlos0/am-i-working) [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square)](https://github.com/goreleaser)
 
 Logs your working activity based on /etc/resolv.conf domain.
 
