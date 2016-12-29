@@ -1,4 +1,4 @@
-# am-i-working [![CircleCI](https://circleci.com/gh/caarlos0/am-i-working.svg?style=svg)](https://circleci.com/gh/caarlos0/am-i-working)
+# am-i-working [![Build Status](https://travis-ci.org/caarlos0/am-i-working.svg?branch=master)](https://travis-ci.org/caarlos0/am-i-working)
 
 Logs your working activity based on /etc/resolv.conf domain.
 
