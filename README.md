@@ -14,8 +14,7 @@ or create a service in the OS level to keep it running forever.
 ## Install
 
 ```console
-brew tap caarlos0/formulae
-brew install twatcher
+brew install caarlos0/tap/am-i-working
 ```
 
 ### macOS Service
