@@ -3,7 +3,7 @@ package commands
 import (
 	"log"
 
-	working "github.com/caarlos0/am-i-working"
+	amiworking "github.com/caarlos0/am-i-working"
 	"github.com/urfave/cli"
 )
 
@@ -13,12 +13,15 @@ var Watch = cli.Command{
 	Usage: "Watch for domain changes",
 	Flags: flags,
 	Action: func(c *cli.Context) error {
-		events := make(chan bool)
-		domain := c.String("domain")
-		resolv := c.String("file")
+		var events = make(chan bool)
+		var domain = c.String("domain")
+		var resolv = c.String("file")
+		if domain == "" {
+			return cli.NewExitError("missing domain name", 1)
+		}
 		log.Println("Watching", resolv, "for domain", domain)
 		go func() {
-			if err := working.Watch(resolv, domain, events); err != nil {
+			if err := amiworking.Watch(resolv, domain, events); err != nil {
 				log.Fatal(err)
 			}
 		}()

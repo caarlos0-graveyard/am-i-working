@@ -1,4 +1,6 @@
-package am_i_working
+// Package amiworking can watch /etc/resolv.conf for your company domain
+// and log if your working or not.
+package amiworking
 
 import (
 	"bufio"
@@ -9,18 +11,20 @@ import (
 	"gopkg.in/fsnotify.v1"
 )
 
+// Watch a file for a domain
 func Watch(file, domain string, events chan bool) error {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		return err
 	}
-	defer watcher.Close()
+	defer func() { _ = watcher.Close() }()
 
-	if err := watcher.Add(file); err != nil {
+	err = watcher.Add(file)
+	if err != nil {
 		return err
 	}
 
-	regex := regexp.MustCompile("domain .*(" + domain + ").*")
+	var regex = regexp.MustCompile("(domain|search) .*(" + domain + ").*")
 	result, err := check(file, regex)
 	if err != nil {
 		return err
@@ -36,21 +40,19 @@ func loop(
 	events chan bool,
 ) error {
 	for {
-		select {
-		case event := <-watcher.Events:
-			if event.Op&fsnotify.Write == fsnotify.Write {
-				result, err := check(event.Name, regex)
-				if err != nil {
-					return err
-				}
-				events <- result
-			} else if event.Op&fsnotify.Remove == fsnotify.Remove {
-				events <- false
-				for {
-					time.Sleep(10 * time.Second)
-					if _, err := os.Stat(event.Name); err == nil {
-						return Watch(event.Name, domain, events)
-					}
+		var event = <-watcher.Events
+		if event.Op&fsnotify.Write == fsnotify.Write {
+			result, err := check(event.Name, regex)
+			if err != nil {
+				return err
+			}
+			events <- result
+		} else if event.Op&fsnotify.Remove == fsnotify.Remove {
+			events <- false
+			for {
+				time.Sleep(10 * time.Second)
+				if _, err := os.Stat(event.Name); err == nil {
+					return Watch(event.Name, domain, events)
 				}
 			}
 		}
@@ -62,7 +64,7 @@ func check(filename string, regex *regexp.Regexp) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		if matches := regex.FindStringSubmatch(scanner.Text()); len(matches) > 0 {
