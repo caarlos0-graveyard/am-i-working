@@ -11,7 +11,7 @@ setup: ## Install all the build and lint dependencies
 	gometalinter --install --update
 
 test: ## Run all the tests
-	gotestcover $(TEST_OPTIONS) -covermode=count -coverprofile=coverage.out $(SOURCE_FILES) -run $(TEST_PATTERN) -timeout=30s
+	gotestcover $(TEST_OPTIONS) -covermode=count -coverprofile=coverage.out $(SOURCE_FILES) -run $(TEST_PATTERN) -timeout=90s
 
 cover: test ## RUn all the tests and opens the coverage report
 	go tool cover -html=coverage.out
