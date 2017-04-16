@@ -1,0 +1,12 @@
+
+[[dependencies]]
+  name = "github.com/stretchr/testify"
+  version = "^1.1.4"
+
+[[dependencies]]
+  name = "github.com/urfave/cli"
+  version = "^1.19.1"
+
+[[dependencies]]
+  name = "gopkg.in/fsnotify.v1"
+  version = "v1.2.11"

@@ -1,4 +1,4 @@
-memo = "066c6af6cf0515bf31caeab344cc77be9673368066d3b697faaf242cc201a6bd"
+memo = "c23c1c59974739b596e420a4f034f6967ed922c2172546ff394fe9b3f03d2310"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
