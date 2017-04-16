@@ -31,6 +31,9 @@ func TestWatchForDomain(t *testing.T) {
 	assert.NoError(ioutil.WriteFile(file, []byte("domain mydomain"), 0644))
 	assert.True(<-events, "domain match")
 
+	assert.NoError(ioutil.WriteFile(file, []byte("search dev.mydomain.com"), 0644))
+	assert.True(<-events, "domain match")
+
 	assert.NoError(ioutil.WriteFile(file, []byte("domain nope"), 0644))
 	assert.False(<-events, "domain doesnt match")
 

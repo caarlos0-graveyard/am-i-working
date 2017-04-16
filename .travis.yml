@@ -1,5 +1,7 @@
 language: go
 go: 1.8
+os:
+  - osx
 install: make setup
 script: make ci
 after_success:
