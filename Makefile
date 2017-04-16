@@ -37,8 +37,8 @@ lint: ## Run all the linters
 
 ci: lint test ## Run all the tests and code checks
 
-build: ## Build a beta version of releaser
-	go build
+build: ## Build a beta version
+	go build -o am-i-working ./cmd/main.go
 
 # Absolutely awesome: http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 help:
