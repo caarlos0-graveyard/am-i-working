@@ -1,6 +1,9 @@
 package commands
 
-import "github.com/urfave/cli"
+import (
+	"github.com/caarlos0/am-i-working/service"
+	"github.com/urfave/cli"
+)
 
 // CreateService creates the service on the OS
 var CreateService = cli.Command{
@@ -8,7 +11,12 @@ var CreateService = cli.Command{
 	Usage: "creates the service on the OS",
 	Flags: flags,
 	Action: func(c *cli.Context) error {
-		return create(c)
+		var resolv = c.String("file")
+		var domain = c.String("domain")
+		if domain == "" {
+			return cli.NewExitError("missing domain name", 1)
+		}
+		return service.Create(resolv, domain)
 	},
 }
 
@@ -17,7 +25,7 @@ var StartService = cli.Command{
 	Name:  "start",
 	Usage: "starts the service on the OS",
 	Action: func(c *cli.Context) error {
-		return start(c)
+		return service.Start()
 	},
 }
 
@@ -26,7 +34,7 @@ var StopService = cli.Command{
 	Name:  "stop",
 	Usage: "stops the service on the OS",
 	Action: func(c *cli.Context) error {
-		return stop(c)
+		return service.Stop()
 	},
 }
 
@@ -35,9 +43,19 @@ var RestartService = cli.Command{
 	Name:  "restart",
 	Usage: "restarts the service",
 	Action: func(c *cli.Context) error {
-		if err := stop(c); err != nil {
+		if err := service.Stop(); err != nil {
 			return err
 		}
-		return start(c)
+		return service.Start()
+	},
+}
+
+// DeleteService stops and delete the service
+var DeleteService = cli.Command{
+	Name:  "delete",
+	Usage: "stops and delete the service",
+	Action: func(c *cli.Context) error {
+		_ = service.Stop()
+		return service.Delete()
 	},
 }

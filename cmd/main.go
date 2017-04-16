@@ -23,6 +23,7 @@ func main() {
 		commands.RestartService,
 		commands.StartService,
 		commands.StopService,
+		commands.DeleteService,
 	}
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
