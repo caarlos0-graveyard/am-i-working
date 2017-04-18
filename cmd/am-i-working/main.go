@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/caarlos0/am-i-working/cmd/commands"
+	"github.com/caarlos0/am-i-working/cmd/am-i-working/commands"
 	"github.com/urfave/cli"
 )
 
