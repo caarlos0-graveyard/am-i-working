@@ -1,5 +1,5 @@
 build:
-  main: ./cmd/amiworking/main.go
+  main: ./cmd/am-i-working/main.go
   goarch:
     - amd64
 brew:
