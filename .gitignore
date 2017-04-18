@@ -1,4 +1,4 @@
 vendor
-am-i-working
+./am-i-working
 coverage.out
 dist
